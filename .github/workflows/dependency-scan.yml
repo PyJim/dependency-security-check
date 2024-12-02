@@ -40,7 +40,6 @@ jobs:
         path: '.'
         format: 'HTML, SARIF'
         out: 'reports' 
-        severity: 'high'
     
     # Upload vulnerability scan results as artifacts
     - name: Upload Scan Results
