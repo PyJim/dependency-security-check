@@ -1,0 +1,63 @@
+name: Dependency Security Scan
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  # Allow manual triggering of the workflow
+  workflow_dispatch:
+
+jobs:
+  dependency-scan:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+    
+    # Setup Node.js for npm dependency scanning
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+    
+    # Dependabot integration for automatic dependency updates
+    - name: Enable Dependabot
+      uses: dependabot/dependabot-core/github-actions/auto-merge@v6
+      with:
+        # Configure auto-merge settings if desired
+        auto-merge: true
+        merge-method: squash
+    
+    # OWASP Dependency-Check for vulnerability scanning
+    - name: OWASP Dependency-Check
+      uses: dependency-check/Dependency-Check_Action@main
+      id: dependency-check
+      with:
+        project: 'My Project'
+        path: '.'
+        format: 'HTML, JSON, XML'
+        out: 'reports' 
+        severity: 'high'
+    
+    # Upload vulnerability scan results as artifacts
+    - name: Upload Scan Results
+      uses: actions/upload-artifact@v4
+      with:
+        name: dependency-check-reports
+        path: reports/
+    
+    # GitHub Security Code Scanning integration
+    - name: Upload to GitHub Security
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: reports/dependency-check-report.sarif
+    
+    # Fail the workflow if high-severity vulnerabilities are found
+    - name: Check Vulnerability Scan Results
+      run: |
+        if grep -q 'SEVERITY="High"' reports/dependency-check-report.json; then
+          echo "High severity vulnerabilities detected. Blocking merge."
+          exit 1
+        fi
