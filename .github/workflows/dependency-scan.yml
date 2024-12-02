@@ -38,7 +38,7 @@ jobs:
       with:
         project: 'My Project'
         path: '.'
-        format: 'HTML'
+        format: 'SARIF'
         out: 'reports' 
     
     # Upload vulnerability scan results as artifacts
@@ -52,4 +52,4 @@ jobs:
     - name: Upload to GitHub Security
       uses: github/codeql-action/upload-sarif@v3
       with:
-        sarif_file: reports/dependency-check-report.html
+        sarif_file: reports/dependency-check-report.sarif
