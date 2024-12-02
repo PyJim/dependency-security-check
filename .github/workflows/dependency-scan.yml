@@ -30,9 +30,7 @@ jobs:
     # NPM Audit for vulnerability scanning
     - name: NPM Security Audit
       run: |
-        npm audit --audit-level=high
-        # If you want to allow the build to continue even with vulnerabilities
-        # npm audit --audit-level=high || true
+        npm audit --audit-level=high || true
     
     # Optional: OWASP Dependency-Check for comprehensive scanning
     - name: OWASP Dependency-Check
