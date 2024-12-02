@@ -11,6 +11,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read  # Required to read files
+      actions: write
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
