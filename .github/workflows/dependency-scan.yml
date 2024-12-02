@@ -9,23 +9,24 @@ on:
   workflow_dispatch:
 
 jobs:
-  dependency-scan:
+  build:
     runs-on: ubuntu-latest
-    
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v4
-    
-    # Setup Node.js for npm dependency scanning
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
     - name: Setup Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v3
       with:
-        node-version: '20'
-    
-    # Install npm dependencies
-    - name: Install Dependencies
-      run: npm ci
-    
+        node-version: 16
+
+    - name: Install dependencies
+      run: |
+        if [ -f package-lock.json ]; then
+          npm ci
+        else
+          npm install
+        fi
     # NPM Audit for vulnerability scanning
     - name: NPM Security Audit
       run: |
