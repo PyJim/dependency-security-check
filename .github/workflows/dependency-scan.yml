@@ -38,7 +38,7 @@ jobs:
       with:
         project: 'My Project'
         path: '.'
-        format: 'HTML'
+        format: 'HTML SARIF'
         out: 'reports' 
     
     # Upload vulnerability scan results as artifacts
