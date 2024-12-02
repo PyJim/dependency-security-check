@@ -2,9 +2,9 @@ name: Dependency Security Scan
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
   # Allow manual triggering of the workflow
   workflow_dispatch:
 
@@ -22,22 +22,24 @@ jobs:
       with:
         node-version: '20'
     
-    # Dependabot integration for automatic dependency updates
-    - name: Enable Dependabot
-      uses: dependabot/dependabot-core/github-actions/auto-merge@v6
-      with:
-        # Configure auto-merge settings if desired
-        auto-merge: true
-        merge-method: squash
+    # Install npm dependencies
+    - name: Install Dependencies
+      run: npm ci
     
-    # OWASP Dependency-Check for vulnerability scanning
+    # NPM Audit for vulnerability scanning
+    - name: NPM Security Audit
+      run: |
+        npm audit --audit-level=high
+        # If you want to allow the build to continue even with vulnerabilities
+        # npm audit --audit-level=high || true
+    
+    # Optional: OWASP Dependency-Check for comprehensive scanning
     - name: OWASP Dependency-Check
       uses: dependency-check/Dependency-Check_Action@main
-      id: dependency-check
       with:
         project: 'My Project'
         path: '.'
-        format: 'HTML, JSON, XML'
+        format: 'HTML, SARIF'
         out: 'reports' 
         severity: 'high'
     
@@ -48,16 +50,8 @@ jobs:
         name: dependency-check-reports
         path: reports/
     
-    # GitHub Security Code Scanning integration
+    # Optional: Upload results to GitHub Security
     - name: Upload to GitHub Security
       uses: github/codeql-action/upload-sarif@v3
       with:
         sarif_file: reports/dependency-check-report.sarif
-    
-    # Fail the workflow if high-severity vulnerabilities are found
-    - name: Check Vulnerability Scan Results
-      run: |
-        if grep -q 'SEVERITY="High"' reports/dependency-check-report.json; then
-          echo "High severity vulnerabilities detected. Blocking merge."
-          exit 1
-        fi
